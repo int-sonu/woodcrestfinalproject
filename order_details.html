@@ -1,0 +1,272 @@
+{% load static %}
+<!doctype html>
+<html ⚡>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Delivery Panel</title>
+  <script async src="https://cdn.ampproject.org/v0.js"></script>
+  <style amp-custom>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f6f9;
+      color: #333;
+    }
+    .header {
+      background-color: #007bff;
+      color: white;
+      height: 80px;
+      padding: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .search-bar input {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+    .logo {
+      height: 50px;
+    }
+    .sidebar {
+      background-color: #343a40;
+      height: 100vh;
+      width: 250px;
+      position: fixed;
+      top: 80px;
+      left: 0;
+      padding: 20px;
+      color: white;
+      box-shadow: 4px 0px 6px rgba(0, 0, 0, 0.1);
+    }
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      display: block;
+      padding: 12px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+    .sidebar a:hover, .sidebar a.active {
+      background-color: #007bff;
+      font-weight: bold;
+    }
+    .content {
+      margin-left: 270px;
+      margin-top: 100px;
+      padding: 30px;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+    .table th, .table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    .table th {
+      background-color: #007bff;
+      color: white;
+    }
+    .table tr:hover {
+      background-color: #f1f1f1;
+    }
+    .notification {
+      position: relative;
+      cursor: pointer;
+      font-size: 20px;
+    }
+    .notification .badge {
+      position: absolute;
+      top: -5px;
+      right: -10px;
+      background-color: red;
+      color: white;
+      border-radius: 50%;
+      padding: 3px 6px;
+      font-size: 12px;
+    }
+    select {
+      padding: 6px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    /* Status Color Styling */
+    .status-pending {
+      background-color: #f8d7da !important; /* Red */
+    }
+    .status-in-transit {
+      background-color: #fff3cd !important; /* Yellow */
+    }
+    .status-delivered {
+      background-color: #d4edda !important; /* Green */
+    }
+    /* Responsive Sidebar */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      .content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="{% static 'img/home/log10.png' %}" alt="Logo" class="logo">
+    <div class="search-bar">
+      <input type="text" placeholder="Search...">
+    </div>
+    <div class="notification">
+      🔔 <span class="badge">3</span>
+    </div>
+    <div class="profile">👤 Hello, {{ user.username }}!</div>
+  </div>
+
+  <div class="sidebar">
+    <h4>🚚 Delivery Agent</h4>
+    <a href="{% url 'delivery_dashboard' %}">🏠 Dashboard</a>
+    <a href="{% url 'my_assigned_orders' %}" class="active">📦 Orders</a>
+    <a href="{% url 'delivery_stats' %}">🚛 Deliveries</a>
+    <a href="#">📊 Reports</a>
+    <a href="#">🔓 Logout</a>
+  </div>
+
+  <main class="content">
+    <h2>Your Assigned Orders</h2>
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% else %}
+
+    <table class="table" id="ordersTable">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer Name</th>
+          <th>Address</th>
+          <th>Product Name</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Assigned At</th>
+          <th>Status</th>
+          <th>OTP Verification</th>
+      </tr>
+      </thead>
+      <tbody>
+        {% for assignment in assigned_orders %}
+        <tr id="row-{{ assignment.order.id }}" class="status-{{ assignment.order.status|lower }}">
+            <td>{{ assignment.order.id }}</td>
+            <td>{{ assignment.order.user.username }}</td>
+            <td>{{ assignment.order.user.address }}</td>
+            <td>{{ assignment.order.product.product_name }}</td>
+            <td>{{ assignment.order.quantity }}</td>
+            <td>Rs.{{ assignment.order.amount }}</td>
+            <td>{{ assignment.assigned_at }}</td>
+            <td>
+              <form method="POST" action="{% url 'agent_update_order_status' assignment.order.id %}">
+                  {% csrf_token %}
+                  <select name="status" class="form-control">
+                      <option value="Pending" {% if assignment.order.status == "Pending" %}selected{% endif %}>Pending</option>
+                      <option value="In Transit" {% if assignment.order.status == "In Transit" %}selected{% endif %}>Out for Delivery</option>
+                      <option value="Delivered" {% if assignment.order.status == "Delivered" %}selected{% endif %} {% if not assignment.otp_verified %}disabled{% endif %}>Delivered</option>
+                      <option value="Canceled" {% if assignment.order.status == "Canceled" %}selected{% endif %}>Canceled</option>
+                  </select>
+                  <button type="submit">Update</button>
+              </form>
+          </td>
+          <td>
+            {% if assignment.order.status == "In Transit" and not assignment.otp_verified %}
+                <button onclick="generateOTP({{ assignment.order.id }})">Generate OTP</button>
+                <form id="verify-otp-form-{{ assignment.order.id }}" method="POST">
+                    {% csrf_token %}
+                    <input type="text" name="otp" placeholder="Enter OTP" required>
+                    <button type="button" onclick="verifyOTP({{ assignment.order.id }})">Verify OTP</button>
+                </form>
+            {% elif assignment.otp_verified %}
+                ✅ OTP Verified
+            {% endif %}
+        </td>
+            <!-- OTP Verification Form -->
+    
+          </tr>
+          {% empty %}
+          <tr>
+              <td colspan="9">No orders assigned</td>
+          </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+             
+    {% endif %}
+  </main>
+
+  <script>
+    // Filter Orders based on Status
+    $(".btn-status-filter").click(function () {
+        var status = $(this).text().trim().toLowerCase(); // Get the status from the clicked filter button
+        if (status === "all") {
+            // Show all orders if "all" is selected
+            $("#ordersTable tbody tr").show();
+        } else {
+            // Loop through each row in the table
+            $("#ordersTable tbody tr").each(function () {
+                var orderStatus = $(this).data("status").toLowerCase();  // Get the status from the data-status attribute of the row
+                // Show or hide the row based on the status match
+                if (orderStatus === status) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+    });
+      function generateOTP(orderId) {
+          fetch(`/generate-otp/${orderId}/`)
+              .then(response => response.json())
+              .then(data => alert(data.message))
+              .catch(error => console.error('Error:', error));
+      }
+      
+      function verifyOTP(orderId) {
+          let form = document.getElementById(`verify-otp-form-${orderId}`);
+          let formData = new FormData(form);
+      
+          fetch(`/verify-otp/${orderId}/`, {
+              method: 'POST',
+              body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+              alert(data.message);
+              if (data.status === 'success') {
+                  location.reload();  // Reload the page to reflect status update
+              }
+          })
+          .catch(error => console.error('Error:', error));
+      }
+      
+  </script>
+
+  </script>
+</body>
+</html>

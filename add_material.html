@@ -1,0 +1,236 @@
+{% load static %}
+<!doctype html>
+<html ⚡>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+  <title>Customizer Dashboard</title>
+  <link rel="canonical" href="self.html">
+  <script async src="https://cdn.ampproject.org/v0.js"></script>
+  <style amp-custom>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f6f9;
+      color: #333;
+    }
+    .header {
+      background-color: #007bff;
+      color: white;
+      height: 80px;
+      padding: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      height: 50px;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    .sidebar {
+      background-color: #343a40;
+      height: 100vh;
+      padding: 20px;
+      position: fixed;
+      top: 80px;
+      width: 250px;
+      color: white;
+    }
+    .sidebar a {
+      color: #f8f9fa;
+      text-decoration: none;
+      display: block;
+      padding: 12px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+    .sidebar a:hover {
+      background-color: #495057;
+    }
+    .content {
+      margin-left: 270px;
+      margin-top: 100px;
+      padding: 30px;
+    }
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      padding: 20px;
+    }
+    .card {
+      background-color: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      text-align: center;
+      padding: 20px;
+    }
+    .card-header {
+      font-weight: bold;
+      color: white;
+      padding: 15px;
+      border-radius: 8px 8px 0 0;
+    }
+    .bg-primary { background-color: #007bff; }
+    .bg-success { background-color: #28a745; }
+    .bg-warning { background-color: #f39c12; }
+    .bg-danger { background-color: #dc3545; }
+    .text-white { color: white; }
+
+    .form-container {
+        width: 50%;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: left;
+        margin: auto;
+        margin-top:80px;
+      }
+      
+      h2 {
+        text-align: center;
+        color: #007bff;
+      }
+      
+      form {
+        display: flex;
+        flex-direction: column;
+      }
+      
+      label {
+        font-weight: bold;
+        margin-top: 10px;
+      }
+      
+      input, select {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+      
+      button {
+        margin-top: 20px;
+        background-color: #007bff;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      
+      button:hover {
+        background-color: #0056b3;
+      }
+      
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="{% static 'img/home/log10.png' %}" alt="Logo" class="logo">
+    <div class="search-bar">
+      <input type="text" placeholder="Search...">
+    </div>
+    <div class="profile">
+      👤 Hello, {{ user.username }}!
+    </div>
+  </div>
+  
+  <div class="sidebar">
+    <h4>🎨 Customizer</h4>
+    <a href="{% url 'designer_dashboard' %}" class="active">🏠 Dashboard</a>
+    <a href="{% url 'add_custom_category' %}">📂 Categories</a>
+    <a href="{% url 'add_custom_subcategory' %}">📑 Subcategories</a>
+    <a href="{% url 'add_material' %}">🛠️ Add Material</a>  <!-- Add Material Link -->
+    <a href="">📐 Custom Orders</a>
+    <a href="">✅ Completed Designs</a>
+    <a href="">⏳ Pending Tasks</a>
+    <a href="">📝 Customization Requests</a>
+    <a href="">🚪 Logout</a>
+  </div>
+ 
+<body>
+    <body>
+        <div class="content">
+            <div class="form-container">
+                <h2>Add New Material</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="name">Material Name:</label>
+                            <input type="text" name="name" required>
+                        </div>
+    
+                        <div class="form-group">
+                            <label for="material_type">Material Type:</label>
+                            <input type="text" name="material_type" required>
+                        </div>
+                    </div>
+    
+                    <button type="submit">Add Material</button>
+                </form>
+            </div>
+        </div>
+    
+        <style>
+            .form-container {
+                width: 50%;
+                margin: auto;
+                padding: 20px;
+                background: #f9f9f9;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin-top:80px;
+            }
+    
+            .form-grid {
+                display: flex;
+                gap: 20px;
+            }
+    
+            .form-group {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+    
+            input {
+                padding: 8px;
+                margin-top: 5px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+    
+            button {
+                margin-top: 15px;
+                padding: 10px;
+                background: #007bff;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+    
+            button:hover {
+                background: #0056b3;
+            }
+        </style>
+    </body>
+    
