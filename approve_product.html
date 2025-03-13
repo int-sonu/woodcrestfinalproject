@@ -1,5 +1,7 @@
 {% load static %}
 
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -95,7 +97,11 @@
                         </li>
                         
                        
-                       
+                        <li class="nav-item">
+                            <a class="nav-link dropdown-toggle mt-3" href="#" id="deliveryAgentDropdown" role="button" data-toggle="collapse" data-target="#deliveryAgentMenu" aria-expanded="false">
+                                <i data-feather="truck"></i>
+                                Delivery Agent
+                            </a>
                             <div class="collapse" id="deliveryAgentMenu">
                                 <ul class="nav flex-column ml-3">
                                     <li class="nav-item">
@@ -134,17 +140,82 @@
                     </ul>
                 </div>
             </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block bg-salmon sidebar">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active mt-3" href="{% url 'admin_dashboard' %}">
+                                <i data-feather="home"></i>
+                                Dashboard <span class="sr-only">(current)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link mt-3" href="{% url 'view_customers' %}">
+                                <i data-feather="users"></i>
+                                View Users
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link mt-3" href="{% url 'view_sellers' %}">
+                                <i data-feather="users"></i>
+                                Sellers List
+                            </a>
+                        </li>
+                       
+                        <li class="nav-item">
+                            <a class="nav-link mt-3" href="{% url 'view_category' %}">
+                                <i data-feather="layers"></i>
+                                Categories
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link mt-3" href="{% url 'view_subcategories' %}">
+                                <i data-feather="shopping-cart"></i>
+                                SubCategories
+                            </a>
+                        </li>
+                       
+                        <li class="nav-item">
+                            <a class="nav-link mt-3" href="{% url 'views_product' %}">
+                                <i data-feather="shopping-cart"></i>
+                                Product List
+                            </a>
+                        </li>
+                       
+                        
+                        
+                       
+                        
+                        <li class="nav-item">
+                            <a class="nav-link mt-3" href="#">
+                                <i data-feather="mail"></i>
+                                Contact Us
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link mt-3" href="{% url 'logout' %}">
+                                <i data-feather="log-out"></i>
+                                Logout
+                            </a>
+                        </li>
+                    
+                    </ul>
+                </div>
+            </nav>
+
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Products</h1>
+                    <h1 class="h2">Approve Products</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
                         <div class="btn-group mr-2">
-                            <a href="{% url 'add_product' %}" class="btn btn-sm btn-outline-secondary">
-                                <i class="fas fa-plus"></i> Add Product
-                            </a>
+                            <!-- Any additional buttons -->
                         </div>
                         <!-- Search Bar -->
-                        <form class="form-inline" method="get" action="{% url 'view_product' %}"> 
+                        <form class="form-inline" method="get" action="{% url 'approve_product' %}">
                             <input class="form-control form-control-sm mr-2" type="search" placeholder="Search" aria-label="Search" name="q" value="{{ query }}">
                             <button class="btn btn-sm btn-outline-secondary" type="submit"><i class="fas fa-search"></i></button>
                         </form>
@@ -152,7 +223,7 @@
                 </div>
 
                 <!-- Show entries dropdown -->
-                <form method="get" action="{% url 'view_product' %}">
+                <form method="get" action="{% url 'approve_product' %}">
                     <div class="mb-3">
                         <label for="entries">Show</label>
                         <select id="entries" name="entries" class="custom-select" style="width: 100px; height: 40px;" onchange="this.form.submit()">
@@ -198,12 +269,15 @@
                             <td>{{ product.stock }}</td>
                             <td>{{ product.description }}</td>
                             <td>
-                                <a href="{% url 'edit_product' product.id %}" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
-                                <a href="{% url 'delete_product' product.id %}" class="btn btn-sm btn-danger">
-                                    <i class="fas fa-trash"></i> Delete
-                                </a>
+                                <form action="{% url 'approve_product_action' product.id %}" method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" name="action" value="approve" class="btn btn-sm btn-success">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                    <button type="submit" name="action" value="reject" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         {% empty %}
@@ -220,28 +294,28 @@
                     {% if products.has_previous %}
                       <li class="page-item"><a class="page-link" href="?q={{ query }}&page={{ products.previous_page_number }}&entries={{ entries_per_page }}">Previous</a></li>
                     {% endif %}
-
                     {% for num in products.paginator.page_range %}
-                      <li class="page-item {% if products.number == num %}active{% endif %}"><a class="page-link" href="?q={{ query }}&page={{ num }}&entries={{ entries_per_page }}">{{ num }}</a></li>
+                      <li class="page-item {% if products.number == num %}active{% endif %}">
+                        <a class="page-link" href="?q={{ query }}&page={{ num }}&entries={{ entries_per_page }}">{{ num }}</a>
+                      </li>
                     {% endfor %}
-
                     {% if products.has_next %}
                       <li class="page-item"><a class="page-link" href="?q={{ query }}&page={{ products.next_page_number }}&entries={{ entries_per_page }}">Next</a></li>
                     {% endif %}
                   </ul>
                 </nav>
-
             </main>
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
     <script>
-        feather.replace()
+        feather.replace();
     </script>
 </body>
 </html>

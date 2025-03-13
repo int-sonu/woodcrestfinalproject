@@ -1,34 +1,37 @@
-{% load static %}
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Assigned Orders for {{ agent.full_name }}</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>Assigned Orders for {{ agent.full_name }}</h2>
-        <div class="card">
-            <div class="card-body">
-                {% if assigned_orders %}
-                    <ul class="list-group">
-                        {% for order in assigned_orders %}
-                            <li class="list-group-item">
-                                <strong>Order ID:</strong> {{ order.id }} - 
-                                <strong>Product:</strong> {{ order.product.product_name }} - 
-                                <strong>Quantity:</strong> {{ order.quantity }} - 
-                                <strong>Status:</strong> {{ order.status }}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>No assigned orders for this agent.</p>
-                {% endif %}
-            </div>
-        </div>
-        <a href="{% url 'delivery_dashboard' %}" class="btn btn-primary mt-3">Back to Dashboard</a>
-    </div>
-</body>
-</html> 
+<table border="1">
+    <thead>
+        <tr>
+            <th>SL No</th>
+            <th>User</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Amount</th>
+            <th>Address</th>
+            <th>City</th>
+            <th>District</th>
+            <th>Pincode</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        {% for assignment in assignments %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ assignment.order.user.username }}</td>
+            <td>{{ assignment.order.product.name }}</td>
+            <td>{{ assignment.order.quantity }}</td>
+
+            <td><strong>{{ assignment.order.amount }}</strong></td>
+            
+            {% with assignment.order.user.addresses.first as address %}
+                <td>{{ address.address_line|default:"No Address" }}</td>
+                <td>{{ address.city|default:"-" }}</td>
+                <td>{{ address.district|default:"-" }}</td>
+                <td>{{ address.pincode|default:"000000" }}</td>
+            {% endwith %}
+            
+           
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
